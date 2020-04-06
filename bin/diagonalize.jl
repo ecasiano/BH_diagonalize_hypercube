@@ -117,11 +117,17 @@ end
 
 c[:u_log] && (U_range = 10 .^ U_range)
 
+# Generate the bosonic basis
+# NOTE: Power of 2 b.c this code is for 2D squares
+D = 2 # Dimension
 if isnothing(site_max)
-    const basis = Szbasis(M, N)
+    const basis = Szbasis(M^D, N)
 else
-    const basis = RestrictedSzbasis(M, N, site_max)
+    const basis = RestrictedSzbasis(M^D, N, site_max)
 end
+
+# print(join([to_str(v) for v in basis], ", "))
+# print(basis.K)
 
 # Initial vector for diagonalization
 const v0 = ones(Float64, length(basis))
@@ -132,9 +138,9 @@ const nmults = zeros(Int, length(U_range))
 
 open(output, "w") do f
     if isnothing(site_max)
-        write(f, "# M=$(M), N=$(N), $(boundary)\n")
+        write(f, "# M=$(M)x$(M), N=$(N), $(boundary)\n")
     else
-        write(f, "# M=$(M), N=$(N), max=$(site_max), $(boundary)\n")
+        write(f, "# M=$(M)x$(M), N=$(N), max=$(site_max), $(boundary)\n")
     end
     write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
