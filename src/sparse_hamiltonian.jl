@@ -22,6 +22,9 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     rows = Int64[]
     cols = Int64[]
     elements = Float64[]
+    
+    # Define the linear size of the 2D lattice
+    L = Int64(sqrt(basis.K))
 
     for (i, bra) in enumerate(basis)
         # Diagonal part
@@ -35,16 +38,22 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
         push!(cols, i)
         push!(elements, U*Usum/2.0 - musum)
 
+        j_col = 0 # Keep track of site's column index
         # Off-diagonal part
         for j in 1:end_site
-            j_next = mod(j+1, 1:basis.K)
+            j_col += 1 
+            #j_next = mod(j+1, 1:basis.K)
+            j_next = j+1
+            if j_col == L: # Right edge PBC
+                j_next = j - (L-1)
+                j_col = 0
             # Tunnel right, tunnel left.
             for (site1, site2) in [(j, j_next), (j_next, j)]
-                if bra[site1] > 0
+                if bra[site1] > 0 # < ...,bra[site1],... | 
                     ket = copy(bra)
                     ket[site1] -= 1
                     ket[site2] += 1
-                    if ket in basis
+                    if ket in basis # otherwise, zero element due to orthogonality
                         push!(rows, i)
                         push!(cols, serial_num(basis, ket))
                         push!(elements, -Ts[j] * sqrt(bra[site1]) * sqrt(bra[site2]+1))
