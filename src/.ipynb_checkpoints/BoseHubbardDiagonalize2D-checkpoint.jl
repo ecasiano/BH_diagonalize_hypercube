@@ -1,4 +1,4 @@
-module BoseHubbardDiagonalize
+module BoseHubbardDiagonalize2D
 
 using LinearAlgebra: svdvals
 using SparseArrays: sparse

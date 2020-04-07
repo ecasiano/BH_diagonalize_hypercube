@@ -53,8 +53,8 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
             end
             # Vertical hopping
             j_down = j+L
-            if j > L^2-L # Bottom edge PBC
-                j_down = j - L*(L-1)
+            if j > (L^2-L) # Bottom edge PBC
+                j_down = j - (L^2-L)
             end
             # Tunnel right, tunnel left,tunnel down, tunnel up
             for (site1, site2) in [(j, j_next), (j_next, j),(j, j_down), (j_down, j)]
