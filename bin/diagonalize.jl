@@ -9,7 +9,7 @@ using ProgressMeter: Progress, ProgressWrapper
 
 s = ArgParseSettings()
 s.autofix_names = true
-@add_arg_table s begin
+@add_arg_table! s begin
     "M"
         help = "number of sites"
         arg_type = Int
@@ -23,8 +23,8 @@ s.autofix_names = true
         help = "site occupation restriction"
         arg_type = Int
 end
-add_arg_group(s, "output settings")
-@add_arg_table s begin
+add_arg_group!(s, "output settings")
+@add_arg_table! s begin
     "--out"
         metavar = "FILE"
         help = "path to output file"
@@ -36,8 +36,8 @@ add_arg_group(s, "output settings")
         help = "show extra information"
         action = :store_true
 end
-add_arg_group(s, "boundary conditions")
-@add_arg_table s begin
+add_arg_group!(s, "boundary conditions")
+@add_arg_table! s begin
     "--pbc"
         help = "periodic boundary conditions (default)"
         arg_type = BdryCond
@@ -53,8 +53,8 @@ add_arg_group(s, "boundary conditions")
         constant = OBC
         default = PBC
 end
-add_arg_group(s, "BH parameters")
-@add_arg_table s begin
+add_arg_group!(s, "BH parameters")
+@add_arg_table! s begin
     "--u-min"
         metavar = "U"
         help = "minimum U"
@@ -82,8 +82,8 @@ add_arg_group(s, "BH parameters")
         arg_type = Float64
         default = 1.0
 end
-add_arg_group(s, "entanglement entropy")
-@add_arg_table s begin
+add_arg_group!(s, "entanglement entropy")
+@add_arg_table! s begin
     "--ee"
         metavar = "XA"
         help = "compute all EEs with partition size XA"
