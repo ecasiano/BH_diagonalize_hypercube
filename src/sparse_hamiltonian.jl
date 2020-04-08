@@ -39,7 +39,6 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
         push!(cols, i)
         push!(elements, U*Usum/2.0 - musum)
 
-        j_row = 0 # Keep track of site's row index
         j_col = 0 # Keep track of site's column index
         # Off-diagonal part
         for j in 1:end_site
@@ -48,7 +47,6 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
             j_col += 1 
             if j_col == L # Right edge PBC
                 j_next = j - (L-1)
-                #j_row += 1 # If we reached here, we're about to go to row below
                 j_col = 0
             end
             # Vertical hopping

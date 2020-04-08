@@ -8,6 +8,7 @@ using ArgParse
 using Arpack
 using JeszenszkiBasis
 using ProgressMeter: Progress, ProgressWrapper
+using LinearAlgebra # for dot product
 
 s = ArgParseSettings()
 s.autofix_names = true
@@ -144,7 +145,7 @@ open(output, "w") do f
     else
         write(f, "# M=$(M)x$(M), N=$(N), max=$(site_max), $(boundary)\n")
     end
-    write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+    write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     meter = Progress(length(U_range), output=progress_output)
     for (i, U) in ProgressWrapper(enumerate(U_range), meter)
@@ -165,8 +166,32 @@ open(output, "w") do f
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
         s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
+        
+        # Calculate expectation value of diagonal energy
+        C_list = Float64[] # Ground state wavefn coefficients.
+        V_list = Float64[] # Diagonal energy of each ground state ket.
+        for (i,ket) in enumerate(basis)
+            
+            # Calculate diagonal energy of each ket_i
+            Vi = 0
+            for site in 1:length(ket)
+                Vi += U/2*ket[site]*(ket[site]-1)
+            end
+            
+            # Probability amplitude of each ket_i
+            Ci = abs(wf[i])^2
+            
+            push!(V_list,Vi)
+            push!(C_list,Ci)
+        end
+        
+        # Expectation value of diagonal energy
+        V0 = dot(V_list,C_list)
+        
+        # Calculate expectation value of the kinetic energy
+        K0 = E0 - V0
 
-        write(f, "$(U/c[:t]) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+        write(f, "$(U/c[:t]) $(E0/c[:t]) $(K0/c[:t]) $(V0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
         flush(f)
     end
 end
