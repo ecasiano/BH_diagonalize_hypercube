@@ -10,7 +10,7 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 
     H = -\\sum_{<i, j>} t_{i,j} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1) - \\sum_i \\mu_i n_i
 """
-function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC,D::Int)
     
     end_site = num_links(basis, boundary)
     end_site = basis.K
@@ -25,7 +25,13 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     elements = Float64[]
     
     # Define the linear size of the 2D lattice
-    L = Int64(sqrt(basis.K))
+    if D == 1
+        L = Int(basis.K)
+    elseif D == 2 
+        L = Int(sqrt(basis.K))
+    else # D == 3
+        L = Int(cbrt(basis.K)) # cbrt: cubic root       
+    end
     
     for (i, bra) in enumerate(basis)
         # Diagonal part
@@ -50,12 +56,29 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
                 j_col = 0
             end
             # Vertical hopping
-            j_down = j+L
-            if j > (L^2-L) # Bottom edge PBC
-                j_down = j - (L^2-L)
+            if D > 1
+                j_down = j+L
+                if j > (L^2-L) # Bottom edge PBC
+                    j_down = j - (L^2-L)
+                end
+            end
+            # Inward hopping
+            if D > 2
+                j_in = j+L^2
+                if j > (L^3-L^2)
+                    j_in = j - (L^3-L^2)
+                end
+            end
+            # Define list of nearest_neigbor sites based on lattice dimension
+            if D == 1
+                nearest_neighbors = [(j, j_next), (j_next, j)]
+            elseif D == 2
+                nearest_neighbors = [(j, j_next), (j_next, j),(j, j_down), (j_down, j)]
+            else # D == 3
+                nearest_neighbors = [(j, j_next), (j_next, j),(j, j_down), (j_down, j),(j, j_in), (j_in, j)]              
             end
             # Tunnel right, tunnel left,tunnel down, tunnel up
-            for (site1, site2) in [(j, j_next), (j_next, j),(j, j_down), (j_down, j)]
+            for (site1, site2) in nearest_neighbors
                 if bra[site1] > 0 # < ...,bra[site1]=n_site1,... | 
                     ket = copy(bra)
                     ket[site1] -= 1
@@ -73,14 +96,14 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     sparse(rows, cols, elements, length(basis), length(basis))
 end
 
-function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
-    sparse_hamiltonian(basis, Ts, zeros(basis.K), U, boundary=boundary)
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC,D::Int)
+    sparse_hamiltonian(basis, Ts, zeros(basis.K), U, boundary=boundary,D=D)
 end
 
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
-    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), mus, U, boundary=boundary)
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC,D::Int)
+    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), mus, U, boundary=boundary,D=D)
 end
 
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC)
-    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), U, boundary=boundary)
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC,D::Int)
+    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), U, boundary=boundary,D=D)
 end

@@ -84,6 +84,11 @@ add_arg_group!(s, "BH parameters")
         help = "t value"
         arg_type = Float64
         default = 1.0
+    "--D"
+        metavar = "D"
+        help = "lattice dimension"
+        arg_type = Int
+        default = 1    
 end
 add_arg_group!(s, "entanglement entropy")
 @add_arg_table! s begin
@@ -107,6 +112,8 @@ const site_max = c[:site_max]
 const boundary = c[:boundary]
 # Size of region A
 const Asize = c[:ee]
+# Lattice dimension
+const D = c[:D]
 
 const progress_output = c[:no_progress] ? devnull : stderr
 
@@ -121,8 +128,7 @@ end
 c[:u_log] && (U_range = 10 .^ U_range)
 
 # Generate the bosonic basis
-# NOTE: Power of 2 b.c this code is for 2D squares
-D = 2 # Dimension
+# NOTE: Exponent b.c this code is for D-dimensional hypercubic lattices
 if isnothing(site_max)
     const basis = Szbasis(M^D, N)
 else
@@ -141,16 +147,16 @@ const nmults = zeros(Int, length(U_range))
 
 open(output, "w") do f
     if isnothing(site_max)
-        write(f, "# M=$(M)x$(M), N=$(N), $(boundary)\n")
+        write(f, "# M=$(M)^$(D), N=$(N), $(boundary)\n")
     else
-        write(f, "# M=$(M)x$(M), N=$(N), max=$(site_max), $(boundary)\n")
+        write(f, "# M=$(M)^$(D), N=$(N), max=$(site_max), $(boundary)\n")
     end
     write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     meter = Progress(length(U_range), output=progress_output)
     for (i, U) in ProgressWrapper(enumerate(U_range), meter)
         # Create the Hamiltonian
-        H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
+        H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary,D=D)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         d = eigs(H, nev=1, which=:SR, v0=v0)
