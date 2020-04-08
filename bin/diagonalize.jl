@@ -1,8 +1,8 @@
 # Renyi entanglement entropy of Bose-Hubbard chains in 1D.
 
 # The push command helps point to the actual module we modified
-push!(LOAD_PATH,"/Users/ecasiano/Desktop/BH_diagonalize_2D/src")
-using BoseHubbardDiagonalize2D
+push!(LOAD_PATH,"/Users/ecasiano/Desktop/BH_diagonalize_hypercube/src")
+using BoseHubbardDiagonalizeHypercube
 
 using ArgParse
 using Arpack
