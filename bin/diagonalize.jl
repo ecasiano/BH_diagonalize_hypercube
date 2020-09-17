@@ -198,6 +198,7 @@ open(output, "w") do f
         K0 = E0 - V0
 
         write(f, "$(U/c[:t]) $(E0/c[:t]) $(K0/c[:t]) $(V0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+
         flush(f)
     end
 end
