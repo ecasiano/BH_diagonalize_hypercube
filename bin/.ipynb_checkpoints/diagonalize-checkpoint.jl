@@ -153,6 +153,51 @@ open(output, "w") do f
     end
     write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
+            
+    #-------------------------------------------------------------------#
+    # Enumerate the sites that will make up the subregion
+
+    sub_sites = zeros(Int,Asize^D)
+    sub_sites_determined = 0
+
+    if D==1 || M==2
+        for i = 1:Asize
+            sub_sites[i] = i
+        end
+
+    else  
+#         sub_sites = [1,2,5,4] # DELETE THIS LATER
+        next_sub_site = 0
+        horizontal_direction = +1
+        horizontal_direction_old = +1
+        vertical_direction = 0
+        ctr = 0
+        y = 5 # DELETE THIS LATER
+        while sub_sites_determined != Asize^D
+            
+            if ctr==Asize
+                vertical_direction = +M
+                horizontal_direction = 0
+                ctr=0      
+            elseif sub_sites_determined>2 && ctr==1
+                vertical_direction = 0
+                horizontal_direction = (-1)*horizontal_direction_old
+                horizontal_direction_old = horizontal_direction    
+            else 
+                # nothing
+            end             
+            
+            next_sub_site += (horizontal_direction+vertical_direction)
+            ctr+=1
+            sub_sites_determined+=1    
+            sub_sites[sub_sites_determined] = next_sub_site
+        end
+    end
+    
+    println(sub_sites)
+
+    #-------------------------------------------------------------------#
+    
     meter = Progress(length(U_range), output=progress_output)
     for (i, U) in ProgressWrapper(enumerate(U_range), meter)
         # Create the Hamiltonian
@@ -168,11 +213,14 @@ open(output, "w") do f
 
         # Use the current ground state for the next diagonalization
         v0 .= wf
-
+        
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
-        s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
-        
+        s2_spatial, s2_operational = spatial_entropy(basis, sub_sites, wf)
+       
+        # In 2D, might want to pass, instead of Asize, a list of integers
+        # that represent the sites in the flattened 2D array.
+
         # Calculate expectation value of diagonal energy
         C_list = Float64[] # Ground state wavefn coefficients.
         V_list = Float64[] # Diagonal energy of each ground state ket.

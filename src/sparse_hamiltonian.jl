@@ -55,14 +55,14 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
                 j_next = j - (L-1)
                 j_col = 0
             end
-            # Vertical hopping
+            # Vertical hopping (3D not working)
             if D > 1
                 j_down = j+L
                 if j > (L^2-L) # Bottom edge PBC
                     j_down = j - (L^2-L)
                 end
             end
-            # Inward hopping
+            # Inward hopping (3D not working)
             if D > 2
                 j_in = j+L^2
                 if j > (L^3-L^2)
