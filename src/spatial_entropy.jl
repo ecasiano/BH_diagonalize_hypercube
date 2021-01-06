@@ -58,11 +58,16 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{T}) where {T<:Numb
     end
 
     S2_op = 0.0
+    n_sector=0 # added by ecasiano
+    println("\n")
     for (S, n) in zip(Ss_op, norms)
         isempty(S) && continue
+        println("P",n_sector,"=",n,"  S2|n=",n_sector,": ",-log(sum(S.^4))," sum(S^2)= ",sum(S.^2))
         S2_op -= log(sum(S.^4)) * n
+        n_sector += 1
     end
-
+    println("\n")
+    
     S2_sp, S2_op
 end
 

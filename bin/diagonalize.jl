@@ -166,7 +166,6 @@ open(output, "w") do f
         end
 
     else  
-#         sub_sites = [1,2,5,4] # DELETE THIS LATER
         next_sub_site = 0
         horizontal_direction = +1
         horizontal_direction_old = +1
@@ -194,8 +193,7 @@ open(output, "w") do f
         end
     end
     
-    println(sub_sites)
-
+    println(sub_sites .- 1)
     #-------------------------------------------------------------------#
     
     meter = Progress(length(U_range), output=progress_output)
