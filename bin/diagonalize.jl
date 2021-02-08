@@ -157,39 +157,47 @@ open(output, "w") do f
     #-------------------------------------------------------------------#
     # Enumerate the sites that will make up the subregion
 
-    sub_sites = zeros(Int,Asize^D)
+    subgeometry = "strip"
+    
     sub_sites_determined = 0
 
     if D==1 || M==2
+        sub_sites = zeros(Int,Asize^D)
         for i = 1:Asize
             sub_sites[i] = i
         end
 
     else  
-        next_sub_site = 0
-        horizontal_direction = +1
-        horizontal_direction_old = +1
-        vertical_direction = 0
-        ctr = 0
-        y = 5 # DELETE THIS LATER
-        while sub_sites_determined != Asize^D
-            
-            if ctr==Asize
-                vertical_direction = +M
-                horizontal_direction = 0
-                ctr=0      
-            elseif sub_sites_determined>2 && ctr==1
-                vertical_direction = 0
-                horizontal_direction = (-1)*horizontal_direction_old
-                horizontal_direction_old = horizontal_direction    
-            else 
-                # nothing
-            end             
-            
-            next_sub_site += (horizontal_direction+vertical_direction)
-            ctr+=1
-            sub_sites_determined+=1    
-            sub_sites[sub_sites_determined] = next_sub_site
+        if subgeometry=="strip"
+            sub_sites = zeros(Int,Asize*M)
+#             m_max = Asize * M
+            next_sub_site = 0
+            horizontal_direction = +1
+            horizontal_direction_old = +1
+            vertical_direction = 0
+            ctr = 0
+            while sub_sites_determined != Asize*M
+
+                if ctr==M
+                    vertical_direction = +M
+                    horizontal_direction = 0
+                    ctr=0      
+                elseif sub_sites_determined>2 && ctr==1
+                    vertical_direction = 0
+                    horizontal_direction = (-1)*horizontal_direction_old
+                    horizontal_direction_old = horizontal_direction    
+                else 
+                    # nothing
+                end             
+
+                next_sub_site += (horizontal_direction+vertical_direction)
+                ctr+=1
+                sub_sites_determined+=1    
+                sub_sites[sub_sites_determined] = next_sub_site
+            end
+        
+        elseif subgeometry=="square"
+            x = "square instructions here"
         end
     end
     
