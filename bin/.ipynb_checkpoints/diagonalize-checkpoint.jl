@@ -151,7 +151,7 @@ open(output, "w") do f
     else
         write(f, "# M=$(M)^$(D), N=$(N), max=$(site_max), $(boundary)\n")
     end
-    write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+    write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) S2acc(l=$(Asize))\n")
 
             
     #-------------------------------------------------------------------#

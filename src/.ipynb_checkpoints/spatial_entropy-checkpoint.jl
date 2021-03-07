@@ -63,9 +63,11 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{T}) where {T<:Numb
     for (S, n) in zip(Ss_op, norms)
         isempty(S) && continue
         println("P",n_sector,"=",n,"  S2|n=",n_sector,": ",-log(sum(S.^4))," sum(S^2)= ",sum(S.^2))
-        S2_op -= log(sum(S.^4)) * n
+#         S2_op -= log(sum(S.^4)) * n
+        S2_op += sqrt(sum(S.^4)) * n 
         n_sector += 1
     end
+    S2_op = -2*log(S2_op)
     println("\n")
     
     S2_sp, S2_op
