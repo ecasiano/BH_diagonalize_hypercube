@@ -60,6 +60,7 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{T}) where {T<:Numb
     S2_op = 0.0
     n_sector=0 # added by ecasiano
     s2ns = zeros(0)
+    Pns = zeros(0)
     println("\n")
     for (S, n) in zip(Ss_op, norms)
         isempty(S) && continue
@@ -69,11 +70,12 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{T}) where {T<:Numb
         S2_op += n*exp(0.5*log(sum(S.^4)))
         n_sector += 1
         append!( s2ns, -log(sum(S.^4)) )
+        append!( Pns, n )
     end
     S2_op = -2*log(S2_op)
     println("\n")
     
-    S2_sp, S2_op, s2ns
+    S2_sp, S2_op, s2ns, Pns
 end
 
 spatial_entropy(basis::AbstractSzbasis, Asize::Int, d::Vector{T}) where {T<:Number} = spatial_entropy(basis, 1:Asize, d)

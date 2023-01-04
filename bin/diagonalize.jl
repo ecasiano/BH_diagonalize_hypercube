@@ -162,6 +162,15 @@ open("s2n_"*output, "w") do s2n_file
     #write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) S2acc(l=$(Asize))\n")
     write(s2n_file, "# U/t s2n0 ... s2n$(N)\n")
 
+open("Pn_"*output, "w") do Pn_file
+    if isnothing(site_max)
+        write(Pn_file, "# M=$(M)^$(D), N=$(N), $(boundary)\n")
+    else
+        write(Pn_file, "# M=$(M)^$(D), N=$(N), max=$(site_max), $(boundary)\n")
+    end
+    #write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) S2acc(l=$(Asize))\n")
+    write(Pn_file, "# U/t Pn0 ... Pn$(N)\n")
+
             
     #-------------------------------------------------------------------#
     # Enumerate the sites that will make up the subregion
@@ -238,7 +247,7 @@ open("s2n_"*output, "w") do s2n_file
         
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
-        s2_spatial, s2_operational, s2ns = spatial_entropy(basis, sub_sites, wf)
+        s2_spatial, s2_operational, s2ns, Pns = spatial_entropy(basis, sub_sites, wf)
        
         # In 2D, might want to pass, instead of Asize, a list of integers
         # that represent the sites in the flattened 2D array.
@@ -268,14 +277,25 @@ open("s2n_"*output, "w") do s2n_file
         K0 = E0 - V0
 
         write(f, "$(U/c[:t]) $(E0/c[:t]) $(K0/c[:t]) $(V0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+
         write(s2n_file,"$(U/c[:t]) ")
         for s2n in s2ns
             write(s2n_file,"$(s2n) ")
         end
         write(s2n_file,"\n")
+
+        write(Pn_file,"$(U/c[:t]) ")
+        for Pn in Pns
+            write(Pn_file,"$(Pn) ")
+        end
+        write(Pn_file,"\n")
+
         flush(f)
         flush(s2n_file)
+        flush(Pn_file)
+
     end
+end
 end
 end
 
