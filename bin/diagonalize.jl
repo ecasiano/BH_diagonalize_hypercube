@@ -153,6 +153,15 @@ open(output, "w") do f
     end
     write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) S2acc(l=$(Asize))\n")
 
+open("s2n_"*output, "w") do s2n_file
+    if isnothing(site_max)
+        write(s2n_file, "# M=$(M)^$(D), N=$(N), $(boundary)\n")
+    else
+        write(s2n_file, "# M=$(M)^$(D), N=$(N), max=$(site_max), $(boundary)\n")
+    end
+    #write(f, "# U/t E0/t <K>/t <V>/t S2(n=$(Asize)) S2(l=$(Asize)) S2acc(l=$(Asize))\n")
+    write(s2n_file, "# U/t s2n0 ... s2n$(N)\n")
+
             
     #-------------------------------------------------------------------#
     # Enumerate the sites that will make up the subregion
@@ -211,8 +220,15 @@ open(output, "w") do f
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         d = eigs(H, nev=1, which=:SR, v0=v0)
+        
         E0 = d[1][1]
+#         println("d: ",d)
+        # Uncomment/commend next three lines to calculate energy gap
+#         E1 = d[1][2]
+#         println("energies: ",d[1])
+#         println("E1-E0 = ",E1," - ",E0,"=",E1-E0)
         wf = vec(d[2])
+#         println("|GS>=",wf)
         d[3] == 1 || @warn("Diagonalization did not converge")
         niters[i] = d[4]
         nmults[i] = d[5]
@@ -222,7 +238,7 @@ open(output, "w") do f
         
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
-        s2_spatial, s2_operational = spatial_entropy(basis, sub_sites, wf)
+        s2_spatial, s2_operational, s2ns = spatial_entropy(basis, sub_sites, wf)
        
         # In 2D, might want to pass, instead of Asize, a list of integers
         # that represent the sites in the flattened 2D array.
@@ -252,9 +268,15 @@ open(output, "w") do f
         K0 = E0 - V0
 
         write(f, "$(U/c[:t]) $(E0/c[:t]) $(K0/c[:t]) $(V0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
-
+        write(s2n_file,"$(U/c[:t]) ")
+        for s2n in s2ns
+            write(s2n_file,"$(s2n) ")
+        end
+        write(s2n_file,"\n")
         flush(f)
+        flush(s2n_file)
     end
+end
 end
 
 if c[:verbose]

@@ -211,8 +211,15 @@ open(output, "w") do f
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         d = eigs(H, nev=1, which=:SR, v0=v0)
+        
         E0 = d[1][1]
+#         println("d: ",d)
+        # Uncomment/commend next three lines to calculate energy gap
+#         E1 = d[1][2]
+#         println("energies: ",d[1])
+#         println("E1-E0 = ",E1," - ",E0,"=",E1-E0)
         wf = vec(d[2])
+#         println("|GS>=",wf)
         d[3] == 1 || @warn("Diagonalization did not converge")
         niters[i] = d[4]
         nmults[i] = d[5]
