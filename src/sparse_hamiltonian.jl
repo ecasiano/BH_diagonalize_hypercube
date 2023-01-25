@@ -13,7 +13,6 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC,D::Int)
     
     end_site = num_links(basis, boundary)
-    end_site = basis.K
 
     length(Ts) == end_site || error("Incorrect number of Ts: $(length(Ts)) != $(end_site)")
     length(mus) == basis.K || error("Incorrect number of mus: $(length(mus)) != $(basis.K)")
